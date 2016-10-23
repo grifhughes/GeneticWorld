@@ -1,6 +1,8 @@
 #GeneticWorld
-A learning exercise in Go. Uses a genetic algorithm to evolve a 
-random string into the user's input. 
+A learning exercise in Go, first ever exposure to it. Uses a genetic 
+algorithm to evolve a random string into the user's input. 
+
+reddit.com/r/dailyprogrammer challenge. 
 
 ##Algorithm outline
 1. Generate random initial population
