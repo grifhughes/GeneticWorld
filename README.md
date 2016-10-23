@@ -8,7 +8,7 @@ tournament](https://en.wikipedia.org/wiki/Tournament_selection)
 Breeding algorithm: [Single point
 crossover](https://en.wikipedia.org/wiki/Crossover_(genetic_algorithm))
 
-[Here](reddit.com/r/dailyprogrammer) is the challenge source. 
+[Here](https://www.reddit.com/r/dailyprogrammer) is the challenge source. 
 
 ##Algorithm outline
 1. Generate random initial population
