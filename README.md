@@ -4,6 +4,7 @@ algorithm to evolve a random string into the user's input.
 
 Parent selection algorithm: [Binary
 tournament](https://en.wikipedia.org/wiki/Tournament_selection)
+
 Breeding algorithm: [Single point
 crossover](https://en.wikipedia.org/wiki/Crossover_(genetic_algorithm))
 
