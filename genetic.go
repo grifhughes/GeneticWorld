@@ -32,7 +32,6 @@ func replace_at_index(in string, r rune, i int) string {
 func init_generation(t string, population_size int) (c []string, f []int, m int) {
 	c = make([]string, population_size)
 	f = make([]int, population_size)
-
 	for i := 0; i < population_size; i++ {
 		c[i] = r_string(len(t) - 1)
 		f[i] = test_fitness(t, c[i])
