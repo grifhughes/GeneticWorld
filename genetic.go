@@ -29,11 +29,16 @@ func replace_at_index(in string, r rune, i int) string {
 }
 
 //creates initial random generation
-func init_generation(c []string, f []int, t string) {
-	for i := 0; i < len(f); i++ {
+func init_generation(t string, population_size int) (c []string, f []int, m int) {
+	c = make([]string, population_size)
+	f = make([]int, population_size)
+
+	for i := 0; i < population_size; i++ {
 		c[i] = r_string(len(t) - 1)
 		f[i] = test_fitness(t, c[i])
 	}
+	m = lowest_fitness(f)
+	return c, f, m
 }
 
 //tests candidate strings against target by Hamming distance
@@ -53,26 +58,18 @@ func lowest_fitness(f []int) int {
 	for i := 0; i < len(f); i++ {
 		if f[i] < min {
 			min = f[i]
-			break
 		}
 	}
 	return min
 }
 
-//calculates fitnesses for new candidate generation
-func calc_new_fitnesses(c []string, f []int, t string) {
-	for i := 0; i < len(f); i++ {
-		f[i] = test_fitness(t, c[i])
-	}
-}
-
 //picks 2 candidates at random and selects the fitter to become a parent
-func binary_tournament(c []string, f []int, p []string) {
-	size := len(f)
-	for i := 0; i < size; i++ {
+func binary_tournament(c []string, f []int, population_size int) (p []string) {
+	p = make([]string, population_size)
+	for i := 0; i < population_size; i++ {
 		//get two random participants
-		i_one := rand.Intn(size)
-		i_two := rand.Intn(size)
+		i_one := rand.Intn(population_size)
+		i_two := rand.Intn(population_size)
 
 		if f[i_one] < f[i_two] {
 			p[i] = c[i_one]
@@ -80,58 +77,59 @@ func binary_tournament(c []string, f []int, p []string) {
 			p[i] = c[i_two]
 		}
 	}
+	return p
 }
 
 //breeds new candidate generation from parents
-func breed(c []string, p []string, mf, cp, tl int) {
-	for i := 0; i < len(c); i += 2 {
-		//single point crossover
-		c[i] = p[i][:cp] + p[i+1][cp:tl]
-		c[i+1] = p[i+1][:cp] + p[i][cp:tl]
+func breed(p []string, target string, mf, tl int) (nc []string, nf []int, nmf int) {
+	//(terrible) scaling mutation rate adds diversity to break local optimum
+	chance := 240
+	if tl > 10 && tl < 30 {
+		chance /= 3
+	} else if tl >= 30 {
+		chance /= 6
+	}
 
-		//(terrible) scaling mutation rate adds diversity to break local optimum
-		chance := 240
-		if mf < 7 && mf >= 4 {
-			chance /= 6
-		} else if mf < 4 && mf > 0 {
-			chance /= 12
-		}
+	nc = make([]string, len(p))
+	nf = make([]int, len(p))
+	crossover_point := rand.Intn(tl)
+
+	for i := 0; i < len(p); i += 2 {
+		//single point crossover
+		nc[i] = p[i][:crossover_point] + p[i+1][crossover_point:tl]
+		nc[i+1] = p[i+1][:crossover_point] + p[i][crossover_point:tl]
+
+		nf[i] = test_fitness(nc[i], target)
+		nf[i+1] = test_fitness(nc[i+1], target)
 
 		//mutation possibilities
 		//entire candidate is replaced by random string
 		//one character in candidate is replaced by random character
 		if rand.Intn(chance) == rand.Intn(chance) {
-			c[i] = r_string(tl)
+			nc[i] = r_string(tl)
 		}
 
 		if rand.Intn(chance) == rand.Intn(chance) {
-			c[i] = replace_at_index(c[i], rune(r_int_range(32, 126)), rand.Intn(tl))
+			nc[i] = replace_at_index(nc[i], rune(r_int_range(32, 126)), rand.Intn(tl))
 		}
 	}
+	nmf = lowest_fitness(nf)
+	return nc, nf, nmf
 }
 
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	const population_size = 200
 	generations := 1
-
 	scanner := bufio.NewReader(os.Stdin)
 	target, _ := scanner.ReadString('\n')
 	target_len := len(target) - 1
 
-	candidates := make([]string, population_size)
-	fitnesses := make([]int, population_size)
-	parents := make([]string, population_size)
-
-	init_generation(candidates, fitnesses, target)
-	min_fitness := lowest_fitness(fitnesses)
+	candidates, fitnesses, min_fitness := init_generation(target, population_size)
 
 	for ok := true; ok; ok = (min_fitness != 0) {
-		binary_tournament(candidates, fitnesses, parents)
-		breed(candidates, parents, min_fitness, rand.Intn(target_len), target_len)
-		calc_new_fitnesses(candidates, fitnesses, target)
-
-		min_fitness = lowest_fitness(fitnesses)
+		parents := binary_tournament(candidates, fitnesses, population_size)
+		candidates, fitnesses, min_fitness = breed(parents, target, min_fitness, target_len)
 		generations++
 	}
 	fmt.Println("Generation", generations, "success!")
