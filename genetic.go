@@ -105,8 +105,7 @@ func breed(c []string, p []string, mf, cp, tl int) {
 		}
 
 		if rand.Intn(chance) == rand.Intn(chance) {
-			rand_pos := rand.Intn(tl)
-			c[i] = replace_at_index(c[i], rune(r_int_range(32, 126)), rand_pos)
+			c[i] = replace_at_index(c[i], rune(r_int_range(32, 126)), rand.Intn(tl))
 		}
 	}
 }
@@ -128,10 +127,8 @@ func main() {
 	min_fitness := lowest_fitness(fitnesses)
 
 	for ok := true; ok; ok = (min_fitness != 0) {
-		crossover_point := rand.Intn(target_len)
-
 		binary_tournament(candidates, fitnesses, parents)
-		breed(candidates, parents, min_fitness, crossover_point, target_len)
+		breed(candidates, parents, min_fitness, rand.Intn(target_len), target_len)
 		calc_new_fitnesses(candidates, fitnesses, target)
 
 		min_fitness = lowest_fitness(fitnesses)
