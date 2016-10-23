@@ -70,13 +70,14 @@ func calc_new_fitnesses(c []string, f []int, t string) {
 func binary_tournament(c []string, f []int, p []string) {
 	size := len(f)
 	for i := 0; i < size; i++ {
-		index_one := rand.Intn(size)
-		index_two := rand.Intn(size)
+		//get two random participants
+		i_one := rand.Intn(size)
+		i_two := rand.Intn(size)
 
-		if f[index_one] < f[index_two] {
-			p[i] = c[index_one]
+		if f[i_one] < f[i_two] {
+			p[i] = c[i_one]
 		} else {
-			p[i] = c[index_two]
+			p[i] = c[i_two]
 		}
 	}
 }
